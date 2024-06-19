@@ -1,0 +1,14 @@
+FPS = 60
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 600
+PAD_WIDTH = 140
+
+
+RED = (255, 0, 0)
+BG = (40, 25, 25)
+
+
+OBJ_SPEED = 2
+
+
+
