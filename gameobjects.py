@@ -1,9 +1,9 @@
 import pygame
 from constants import RED, SCREEN_WIDTH, SCREEN_HEIGHT, PAD_WIDTH, BALL_WIDTH, BRICK_WIDTH, BRICK_HEIGHT, BRICK_HIT_CNT, \
-    BUTTON_WIDTH, BUTTON_HEIGHT
+    BUTTON_WIDTH, BUTTON_HEIGHT, GAME_INFO_SECTION_HEIGHT
 from math import sqrt, ceil
 
-from util import draw_text
+from util import draw_text, SingletonMeta
 
 class Pad:
 
@@ -31,17 +31,20 @@ class Pad:
 
 class Ball:
 
-    def __init__(self, image, x, y):
+    def __init__(self, image, x, y, speed):
         self.image = image
         self.rect = pygame.Rect(x, y, BALL_WIDTH, BALL_WIDTH)
-        self.dx = 2
-        self.dy = 2
+        self.dx = speed
+        self.dy = speed
 
 
     def move(self, pad, bricks):
         hit_counter = 0
         off_screen = False
+        next_level = False
 
+        if self.rect.y < GAME_INFO_SECTION_HEIGHT:
+            next_level = True
 
         if self.rect.y > SCREEN_HEIGHT:
             # ball dropped out
@@ -88,7 +91,7 @@ class Ball:
                     self.dx = -self.dx
                     brick.update_hit()
 
-        return hit_counter, off_screen
+        return hit_counter, off_screen, next_level
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -114,18 +117,32 @@ class Brick(pygame.sprite.Sprite):
 
 
 
-class GameData:
-    def __init__(self, difficulty):
+class GameData(metaclass=SingletonMeta):
+    def __init__(self):
         self.score = 0
         self.lives = 3
         self.level = 1
+        self.ball_speed = 2
         self.game_over = False
+        self.new_game = True
+        self.run = True
+        self.player_name = ""
 
     def reset(self):
         self.score = 0
         self.lives = 3
         self.level = 1
         self.game_over = False
+        self.new_game = True
+        self.player_name = ""
+
+    def set_difficulty_level(self, difficulty):
+        if difficulty == 2:
+            self.lives = 2
+            self.ball_speed = 3
+        elif difficulty == 3:
+            self.lives = 1
+            self.ball_speed = 5
 
 
 class Button:

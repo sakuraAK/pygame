@@ -31,3 +31,9 @@ BRICK_HIT_CNT = 1
 
 
 
+# difficulty levels
+
+EASY = 1
+HARD = 2
+INSANE = 3
+
