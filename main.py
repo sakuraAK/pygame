@@ -2,6 +2,7 @@ import pygame
 from constants import BG, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, OBJ_SPEED, BALL_SCALE, PANEL, WHITE, FONT_SIZE_MED, BLACK, \
 GAME_INFO_SECTION_HEIGHT, BRICK_WIDTH, BRICK_HEIGHT, RED, FONT_SIZE_LARGE, FONT_SIZE_SMALL, EASY, HARD, INSANE
 
+from pygame import mixer
 
 from gameobjects import Pad, Ball, Brick, GameData, Button
 
@@ -9,6 +10,21 @@ from util import draw_text, scale_image
 
 
 pygame.init()
+mixer.init()
+
+pygame.mixer.music.load("assets/audio/music.wav")
+pygame.mixer.music.set_volume(0.1)
+pygame.mixer.music.play(-1, 0.0, 5000)
+
+# load sounds
+brick_hit_sound = pygame.mixer.Sound("assets/audio/BrickHit.wav")
+brick_hit_sound.set_volume(0.5)
+
+wall_hit_sound = pygame.mixer.Sound("assets/audio/WallBounce.wav")
+wall_hit_sound.set_volume(0.5)
+
+pad_hit_sound = pygame.mixer.Sound("assets/audio/PadBounce.wav")
+pad_hit_sound.set_volume(0.5)
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Breakout")
@@ -177,7 +193,8 @@ while game_data.run:
     else:
 #     game logic
         if ball is None:
-            ball = Ball(ball_image, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, game_data.ball_speed)
+            ball = Ball(ball_image, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, game_data.ball_speed, \
+                        wall_hit_sound, brick_hit_sound, pad_hit_sound)
 
         if not game_data.game_over:
             # calculate movement
@@ -205,7 +222,8 @@ while game_data.run:
                     recording_name = True
                 else:
                     game_data.lives -= 1
-                    ball = Ball(ball_image, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, game_data.ball_speed)
+                    ball = Ball(ball_image, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, game_data.ball_speed,
+                                wall_hit_sound, brick_hit_sound, pad_hit_sound)
 
             for brick in bricks:
                 brick.draw(screen)

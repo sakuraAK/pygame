@@ -31,11 +31,14 @@ class Pad:
 
 class Ball:
 
-    def __init__(self, image, x, y, speed):
+    def __init__(self, image, x, y, speed, wall_sound, brick_sound, pad_sound):
         self.image = image
         self.rect = pygame.Rect(x, y, BALL_WIDTH, BALL_WIDTH)
         self.dx = speed
         self.dy = speed
+        self.wall_sound = wall_sound
+        self.brick_sound = brick_sound
+        self.pad_sound = pad_sound
 
 
     def move(self, pad, bricks):
@@ -54,18 +57,22 @@ class Ball:
             #  detect collision with the pad
             if self.rect.colliderect(pad.rect):
                 self.dy = -self.dy
+                self.pad_sound.play()
+
 
             # detect go off the screen left
 
             if self.rect.x < 0:
                 self.rect.x = 0
                 self.dx = -self.dx
+                self.wall_sound.play()
 
             # detect go off the screen right
 
             if self.rect.x > SCREEN_WIDTH - BALL_WIDTH:
                 self.rect.x = SCREEN_WIDTH - BALL_WIDTH
                 self.dx = -self.dx
+                self.wall_sound.play()
 
             self.rect.y += self.dy
             for brick in bricks:
@@ -78,6 +85,7 @@ class Ball:
                         self.rect.bottom = brick.rect.top
                     self.dy = -self.dy
                     brick.update_hit()
+                    self.brick_sound.play()
 
             self.rect.x += self.dx
             for brick in bricks:
@@ -90,6 +98,7 @@ class Ball:
                         self.rect.left = brick.rect.right
                     self.dx = -self.dx
                     brick.update_hit()
+                    self.brick_sound.play()
 
         return hit_counter, off_screen, next_level
 
