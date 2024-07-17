@@ -3,23 +3,11 @@ from pygame import mixer
 
 from util import draw_text, scale_image
 import constants as const
+from character import Character
 
 pygame.init()
 mixer.init()
 
-# pygame.mixer.music.load("assets/audio/music.wav")
-# pygame.mixer.music.set_volume(0.1)
-# pygame.mixer.music.play(-1, 0.0, 5000)
-#
-# # load sounds
-# brick_hit_sound = pygame.mixer.Sound("assets/audio/BrickHit.wav")
-# brick_hit_sound.set_volume(0.5)
-#
-# wall_hit_sound = pygame.mixer.Sound("assets/audio/WallBounce.wav")
-# wall_hit_sound.set_volume(0.5)
-#
-# pad_hit_sound = pygame.mixer.Sound("assets/audio/PadBounce.wav")
-# pad_hit_sound.set_volume(0.5)
 
 screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
 pygame.display.set_caption("Dungeon Crawler")
@@ -33,18 +21,13 @@ move_right = False
 move_up = False
 move_down = False
 
+dx = 0
+dy = 0
 
 
 
 def draw_game_info():
     pass
-    # data = GameData()
-    # pygame.draw.rect(screen, PANEL, (0, 0, SCREEN_WIDTH, GAME_INFO_SECTION_HEIGHT))
-    # pygame.draw.line(screen, WHITE, (0, GAME_INFO_SECTION_HEIGHT), (SCREEN_WIDTH, GAME_INFO_SECTION_HEIGHT))
-    # draw_text(atari_font_medium, f"Level:{data.level}", BLACK, SCREEN_WIDTH // 2 - 100, 10, screen)
-    # draw_text(atari_font_medium, f"Lives:{data.lives}", BLACK, 10, 10, screen)
-    # draw_text(atari_font_medium, f"Score:{data.score}", BLACK, SCREEN_WIDTH - 200, 10, screen)
-
 
 
 
@@ -53,13 +36,15 @@ def draw_level():
 
 
 # image processing
-
+hero_image = pygame.image.load("assets/images/dracula/idle/0.png")
+hero_image = scale_image(hero_image, const.CHARACTER_SCALE)
 
 
 
 
 # game objects
 
+hero = Character(const.SCREEN_WIDTH // 2, const.SCREEN_HEIGHT // 2, hero_image)
 
 draw_level()
 
@@ -69,6 +54,29 @@ while run:
     screen.fill(const.BG)
 
     # game logic
+
+    # calculate player speed
+    dx = 0
+    dy = 0
+    if move_right:
+        dx = const.CHARACTER_SPEED
+    if move_left:
+        dx = -const.CHARACTER_SPEED
+    if move_up:
+        dy = -const.CHARACTER_SPEED
+    if move_down:
+        dy = const.CHARACTER_SPEED
+
+
+    # move
+    hero.move(dx, dy)
+
+    # update
+    hero.update()
+
+    # draw
+    hero.draw(screen)
+
 
     # event handling
     for e in pygame.event.get():
@@ -81,11 +89,19 @@ while run:
                 move_left = True
             elif e.key == pygame.K_d:
                 move_right = True
+            elif e.key == pygame.K_w:
+                move_up = True
+            elif e.key == pygame.K_s:
+                move_down = True
         elif e.type == pygame.KEYUP:
             if e.key == pygame.K_a:
                 move_left = False
             elif e.key == pygame.K_d:
                 move_right = False
+            elif e.key == pygame.K_w:
+                move_up = False
+            elif e.key == pygame.K_s:
+                move_down = False
 
 
 
