@@ -4,6 +4,7 @@ from pygame import mixer
 from util import draw_text, scale_image
 import constants as const
 from character import Character
+from weapon import Weapon
 
 pygame.init()
 mixer.init()
@@ -36,15 +37,32 @@ def draw_level():
 
 
 # image processing
-hero_image = pygame.image.load("assets/images/dracula/idle/0.png")
-hero_image = scale_image(hero_image, const.CHARACTER_SCALE)
+characters = ["dracula"]
+actions = ["idle", "move"]
+animation_list = []
+
+for character in characters:
+    character_animations = []
+    for action in actions:
+        action_animations = []
+        for i in range(4):
+            image = pygame.image.load(f"assets/images/{character}/{action}/{i}.png")
+            image = scale_image(image, const.CHARACTER_SCALE)
+            action_animations.append(image)
+        character_animations.append(action_animations)
+    animation_list.append(character_animations)
+
+bow_image = pygame.image.load("assets/images/weapons/bow.png")
+bow_image = scale_image(bow_image, const.WEAPON_SCALE)
+
 
 
 
 
 # game objects
 
-hero = Character(const.SCREEN_WIDTH // 2, const.SCREEN_HEIGHT // 2, hero_image)
+hero = Character(const.SCREEN_WIDTH // 2, const.SCREEN_HEIGHT // 2, animation_list, 1)
+weapon = Weapon(bow_image)
 
 draw_level()
 
@@ -73,9 +91,11 @@ while run:
 
     # update
     hero.update()
+    weapon.update(hero)
 
     # draw
     hero.draw(screen)
+    weapon.draw(screen)
 
 
     # event handling
