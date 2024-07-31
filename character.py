@@ -23,7 +23,7 @@ class Character:
         self.image = self.animation_list[1 if self.moving else 0][self.frame_idx]
         self.flipped = False
         self.image_last_update_time = pygame.time.get_ticks()
-
+        self.health = 20
 
 
 
@@ -35,7 +35,13 @@ class Character:
 
         # determine if the image should be flipped
 
-        self.flipped = dx < 0
+        if self.moving:
+            self.flipped = dx > 0
+        else:
+            mouse_pos = pygame.mouse.get_pos()
+        # if pointing weapon right then flip
+            self.flipped = self.rect.centerx < mouse_pos[0]
+
 
         # correct diagonal speed
         if dx != 0 and dy != 0:
@@ -48,17 +54,18 @@ class Character:
 
 
     def update(self):
-        current_time = pygame.time.get_ticks()
-        if current_time - self.image_last_update_time > const.ANIMATION_COOLDOWN_PERIOD:
-            self.frame_idx += 1
-            if self.frame_idx >= len(self.animation_list[1 if self.moving else 0]):
-                self.frame_idx = 0
-            self.image_last_update_time = current_time
+        if self.health > 0:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.image_last_update_time > const.ANIMATION_COOLDOWN_PERIOD:
+                self.frame_idx += 1
+                if self.frame_idx >= len(self.animation_list[1 if self.moving else 0]):
+                    self.frame_idx = 0
+                self.image_last_update_time = current_time
 
-        self.image = self.animation_list[1 if self.moving else 0][self.frame_idx]
+            self.image = self.animation_list[1 if self.moving else 0][self.frame_idx]
 
 
     def draw(self, surface):
-        flipped_image = pygame.transform.flip(self.image, self.flipped and not self.moving, False)
+        flipped_image = pygame.transform.flip(self.image, self.flipped, False)
         surface.blit(flipped_image, self.rect)
         pygame.draw.rect(surface, const.RED, self.rect, 1)

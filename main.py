@@ -1,7 +1,7 @@
 import pygame
 from pygame import mixer
 
-from util import draw_text, scale_image
+from util import draw_text, scale_image, DamageText
 import constants as const
 from character import Character
 from weapon import Weapon
@@ -26,6 +26,8 @@ dx = 0
 dy = 0
 
 
+font = pygame.font.Font("assets/fonts/AtariClassic.ttf", const.FONT_SIZE_SMALL)
+
 
 def draw_game_info():
     pass
@@ -37,7 +39,7 @@ def draw_level():
 
 
 # image processing
-characters = ["dracula"]
+characters = ["dracula", "zombie"]
 actions = ["idle", "move"]
 animation_list = []
 
@@ -55,6 +57,8 @@ for character in characters:
 bow_image = pygame.image.load("assets/images/weapons/bow.png")
 bow_image = scale_image(bow_image, const.WEAPON_SCALE)
 
+arrow_image = pygame.image.load("assets/images/weapons/arrow.png")
+arrow_image = scale_image(arrow_image, const.WEAPON_SCALE)
 
 
 
@@ -62,10 +66,13 @@ bow_image = scale_image(bow_image, const.WEAPON_SCALE)
 # game objects
 
 hero = Character(const.SCREEN_WIDTH // 2, const.SCREEN_HEIGHT // 2, animation_list, 1)
-weapon = Weapon(bow_image)
+weapon = Weapon(bow_image, arrow_image)
+enemy = Character(100, const.SCREEN_HEIGHT // 2, animation_list, 2)
 
 draw_level()
 
+arrows = pygame.sprite.Group()
+damage_text_grp = pygame.sprite.Group()
 
 while run:
     clock.tick(const.FPS)
@@ -91,11 +98,30 @@ while run:
 
     # update
     hero.update()
-    weapon.update(hero)
+    arrow = weapon.update(hero)
+    if arrow:
+        arrows.add(arrow)
+
+    for arrow in arrows:
+        damage = arrow.update(enemy)
+        if damage > 0:
+            enemy.health -= damage
+            damage_text = DamageText(str(damage), enemy.rect.centerx, enemy.rect.centery, font)
+            damage_text_grp.add(damage_text)
+
+    enemy.update()
+
+    damage_text_grp.update()
 
     # draw
     hero.draw(screen)
     weapon.draw(screen)
+    arrows.draw(screen)
+    enemy.draw(screen)
+
+    for dt in damage_text_grp:
+        dt.draw(screen)
+
 
 
     # event handling
